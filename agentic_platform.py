@@ -7,14 +7,22 @@ manageable sub-tasks, evaluates outcomes, and iteratively improves.
 
 import asyncio
 import uuid
-from dataclasses import dataclass, field
+import os
+import json
+from pathlib import Path
+from dataclasses import dataclass, field, asdict
 from enum import Enum
 from typing import Any, Callable, Dict, List, Optional
 import logging
+from datetime import datetime
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+# Base directory for all runs
+RUNS_DIR = Path(__file__).parent / "runs"
+RUNS_DIR.mkdir(exist_ok=True)
 
 
 class TaskStatus(Enum):
@@ -39,6 +47,7 @@ class Task:
     max_attempts: int = 5
     subtasks: List['Task'] = field(default_factory=list)
     parent_id: Optional[str] = None
+    run_dir: Optional[Path] = None
     
     def reset(self):
         """Reset task for retry."""
@@ -46,6 +55,30 @@ class Task:
         self.result = None
         self.error = None
         self.attempts += 1
+    
+    def save(self, run_dir: Optional[Path] = None):
+        """Save task state to disk."""
+        target_dir = run_dir or self.run_dir
+        if not target_dir:
+            return
+        
+        task_file = target_dir / "tasks" / f"{self.id}.json"
+        task_file.parent.mkdir(exist_ok=True)
+        
+        task_data = {
+            "id": self.id,
+            "description": self.description,
+            "requirements": self.requirements,
+            "status": self.status.value,
+            "result": str(self.result) if self.result else None,
+            "error": self.error,
+            "attempts": self.attempts,
+            "parent_id": self.parent_id,
+            "timestamp": datetime.now().isoformat()
+        }
+        
+        with open(task_file, 'w') as f:
+            json.dump(task_data, f, indent=2)
 
 
 @dataclass
@@ -167,19 +200,47 @@ class SubAgent:
         depth: int = 0,
         max_depth: int = 3,
         max_retries: int = 5,
-        parent_agent: Optional['SubAgent'] = None
+        parent_agent: Optional['SubAgent'] = None,
+        run_dir: Optional[Path] = None
     ):
         self.id = str(uuid.uuid4())
         self.llm_client = llm_client
         self.task = task
+        self.task.run_dir = run_dir
         self.depth = depth
         self.max_depth = max_depth
         self.max_retries = max_retries
         self.parent_agent = parent_agent
         self.sub_agents: List['SubAgent'] = []
         self.is_active = True
+        self.run_dir = run_dir
+        
+        # Save agent info
+        if run_dir:
+            self._save_agent_info()
         
         logger.info(f"Created SubAgent {self.id} at depth {depth} for task: {task.description[:50]}...")
+    
+    def _save_agent_info(self):
+        """Save agent metadata to disk."""
+        if not self.run_dir:
+            return
+        
+        agents_dir = self.run_dir / "agents"
+        agents_dir.mkdir(exist_ok=True)
+        
+        agent_data = {
+            "id": self.id,
+            "depth": self.depth,
+            "task_id": self.task.id,
+            "task_description": self.task.description,
+            "is_active": self.is_active,
+            "created_at": datetime.now().isoformat()
+        }
+        
+        agent_file = agents_dir / f"{self.id}.json"
+        with open(agent_file, 'w') as f:
+            json.dump(agent_data, f, indent=2)
     
     async def decompose_task(self) -> List[Task]:
         """Break down the current task into subtasks using LLM."""
@@ -323,7 +384,8 @@ and can be completed directly, return an empty array.
                 depth=self.depth + 1,
                 max_depth=self.max_depth,
                 max_retries=self.max_retries,
-                parent_agent=self
+                parent_agent=self,
+                run_dir=self.run_dir
             )
             self.sub_agents.append(sub_agent)
         
@@ -362,11 +424,47 @@ Provide a complete and accurate solution. Be thorough and ensure all requirement
         try:
             result = await self.llm_client.generate(prompt)
             self.task.result = result
+            
+            # Save result to disk if run_dir is set
+            if self.run_dir:
+                self._save_result(result)
+            
+            # Save task state
+            if self.run_dir:
+                self.task.save()
+            
             return True
         except Exception as e:
             logger.error(f"Direct execution failed: {e}")
             self.task.error = str(e)
+            if self.run_dir:
+                self.task.save()
             return False
+    
+    def _save_result(self, result: Any):
+        """Save task result to disk."""
+        if not self.run_dir:
+            return
+        
+        results_dir = self.run_dir / "results"
+        results_dir.mkdir(exist_ok=True)
+        
+        # Save the main result
+        result_file = results_dir / f"{self.task.id}.txt"
+        with open(result_file, 'w') as f:
+            f.write(str(result))
+        
+        # Also save as JSON for structured data
+        result_json_file = results_dir / f"{self.task.id}.json"
+        with open(result_json_file, 'w') as f:
+            json.dump({
+                "task_id": self.task.id,
+                "task_description": self.task.description,
+                "result": str(result),
+                "agent_id": self.id,
+                "depth": self.depth,
+                "timestamp": datetime.now().isoformat()
+            }, f, indent=2)
     
     async def _evaluate_result(self) -> Dict[str, Any]:
         """Evaluate whether the task was completed successfully."""
@@ -486,11 +584,34 @@ class AgenticPlatform:
         """
         logger.info(f"Starting execution of goal: {goal}")
         
+        # Generate a short unique ID for this run
+        run_id = str(uuid.uuid4())[:8]
+        run_dir = RUNS_DIR / run_id
+        run_dir.mkdir(exist_ok=True)
+        
+        # Save run metadata
+        run_metadata = {
+            "run_id": run_id,
+            "goal": goal,
+            "requirements": requirements or [],
+            "started_at": datetime.now().isoformat(),
+            "model": self.llm_client.model,
+            "provider": self.provider,
+            "max_depth": self.max_depth,
+            "max_retries": self.max_retries
+        }
+        
+        with open(run_dir / "metadata.json", 'w') as f:
+            json.dump(run_metadata, f, indent=2)
+        
+        logger.info(f"Run directory created: {run_dir}")
+        
         # Create root task
         root_task = Task(
             description=goal,
             requirements=requirements or [],
-            max_attempts=self.max_retries
+            max_attempts=self.max_retries,
+            run_dir=run_dir
         )
         
         # Create root agent
@@ -499,7 +620,8 @@ class AgenticPlatform:
             task=root_task,
             depth=0,
             max_depth=self.max_depth,
-            max_retries=self.max_retries
+            max_retries=self.max_retries,
+            run_dir=run_dir
         )
         
         self.active_agents.append(root_agent)
@@ -512,6 +634,23 @@ class AgenticPlatform:
         # Deactivate root agent
         root_agent.deactivate()
         
+        # Save final run summary
+        run_summary = {
+            "run_id": run_id,
+            "success": success,
+            "goal": goal,
+            "result": str(root_task.result) if root_task.result else None,
+            "error": root_task.error,
+            "attempts": root_task.attempts,
+            "execution_time_seconds": end_time - start_time,
+            "max_depth_reached": self._get_max_depth_reached(root_agent),
+            "total_subagents": self._count_subagents(root_agent),
+            "completed_at": datetime.now().isoformat()
+        }
+        
+        with open(run_dir / "summary.json", 'w') as f:
+            json.dump(run_summary, f, indent=2)
+        
         # Prepare result
         result = {
             "success": success,
@@ -521,10 +660,13 @@ class AgenticPlatform:
             "attempts": root_task.attempts,
             "execution_time": end_time - start_time,
             "max_depth_reached": self._get_max_depth_reached(root_agent),
-            "total_subagents": self._count_subagents(root_agent)
+            "total_subagents": self._count_subagents(root_agent),
+            "run_id": run_id,
+            "run_dir": str(run_dir)
         }
         
         logger.info(f"Execution completed: {'SUCCESS' if success else 'FAILED'}")
+        logger.info(f"Results saved to: {run_dir}")
         return result
     
     def execute_sync(self, goal: str, requirements: Optional[List[str]] = None) -> Dict[str, Any]:
