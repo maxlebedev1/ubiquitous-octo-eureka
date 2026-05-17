@@ -450,15 +450,17 @@ class AgenticPlatform:
             self.llm_client = MockLLMClient(api_key or "mock-key", model)
             logger.info("Using mock LLM client")
         elif provider.lower() == "deepseek":
+            # Use DeepSeek model if provided, otherwise default to deepseek-chat
+            deepseek_model = model if model else "deepseek-chat"
             self.llm_client = DeepSeekClient(
                 api_key, 
-                model=model if model else "deepseek-chat",
+                model=deepseek_model,
                 base_url=base_url
             )
             if base_url:
-                logger.info(f"Using DeepSeek client with model: {model} and custom base_url: {base_url}")
+                logger.info(f"Using DeepSeek client with model: {deepseek_model} and custom base_url: {base_url}")
             else:
-                logger.info(f"Using DeepSeek client with model: {model}")
+                logger.info(f"Using DeepSeek client with model: {deepseek_model}")
         elif provider.lower() == "custom":
             # Use OpenAI client with custom base URL for any OpenAI-compatible API
             self.llm_client = OpenAIClient(api_key, model, base_url=base_url)
