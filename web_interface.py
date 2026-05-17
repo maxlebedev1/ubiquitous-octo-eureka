@@ -244,10 +244,32 @@ class VisualizablePlatform(AgenticPlatform):
         """Execute with real-time visualization support."""
         logger.info(f"Starting visualized execution of goal: {goal}")
         
+        # Generate run ID and directory (same as base class)
+        from agentic_platform import RUNS_DIR
+        run_id = str(uuid.uuid4())[:8]
+        run_dir = RUNS_DIR / run_id
+        run_dir.mkdir(exist_ok=True)
+        
+        # Save metadata
+        run_metadata = {
+            "run_id": run_id,
+            "goal": goal,
+            "requirements": requirements or [],
+            "started_at": datetime.now().isoformat(),
+            "model": self.llm_client.model,
+            "provider": self.provider,
+            "max_depth": self.max_depth,
+            "max_retries": self.max_retries
+        }
+        
+        with open(run_dir / "metadata.json", 'w') as f:
+            json.dump(run_metadata, f, indent=2)
+        
         root_task = Task(
             description=goal,
             requirements=requirements or [],
-            max_attempts=self.max_retries
+            max_attempts=self.max_retries,
+            run_dir=run_dir
         )
         
         root_agent = VisualizableSubAgent(
@@ -256,11 +278,14 @@ class VisualizablePlatform(AgenticPlatform):
             depth=0,
             max_depth=self.max_depth,
             max_retries=self.max_retries,
-            session=session
+            session=session,
+            run_dir=run_dir
         )
         
         if session:
             session.root_agent = root_agent.visual_node
+            session.run_id = run_id
+            session.run_dir = str(run_dir)
         
         self.active_agents.append(root_agent)
         
@@ -270,12 +295,31 @@ class VisualizablePlatform(AgenticPlatform):
         
         root_agent.deactivate()
         
+        # Save summary
+        run_summary = {
+            "run_id": run_id,
+            "success": success,
+            "goal": goal,
+            "result": str(root_task.result) if root_task.result else None,
+            "error": root_task.error,
+            "attempts": root_task.attempts,
+            "execution_time_seconds": end_time - start_time,
+            "max_depth_reached": self._get_max_depth_reached(root_agent),
+            "total_subagents": self._count_subagents(root_agent),
+            "completed_at": datetime.now().isoformat()
+        }
+        
+        with open(run_dir / "summary.json", 'w') as f:
+            json.dump(run_summary, f, indent=2)
+        
         if session:
             session.status = "completed" if success else "failed"
             session.end_time = datetime.now().isoformat()
             session.add_event(EventType.EXECUTION_COMPLETE, {
                 "success": success,
                 "execution_time": end_time - start_time,
+                "run_id": run_id,
+                "run_dir": str(run_dir)
             })
         
         result = {
@@ -287,9 +331,12 @@ class VisualizablePlatform(AgenticPlatform):
             "execution_time": end_time - start_time,
             "max_depth_reached": self._get_max_depth_reached(root_agent),
             "total_subagents": self._count_subagents(root_agent),
+            "run_id": run_id,
+            "run_dir": str(run_dir)
         }
         
         logger.info(f"Execution completed: {'SUCCESS' if success else 'FAILED'}")
+        logger.info(f"Results saved to: {run_dir}")
         return result
 
 
