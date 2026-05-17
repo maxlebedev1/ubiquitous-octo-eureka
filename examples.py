@@ -107,13 +107,13 @@ def example_deepseek():
     # Initialize platform with DeepSeek
     platform = AgenticPlatform(
         api_key=api_key,
-        model="deepseek-chat",  # or "deepseek-coder" for coding tasks
+        model="deepseek-v4-pro",  # DeepSeek V4 Pro model
         max_depth=2,
         max_retries=3,
         provider="deepseek"  # Specify DeepSeek as the provider
     )
     
-    # Execute goal
+    # Execute goal (use execute_sync for synchronous usage)
     goal = "Write a Python function to sort a list using merge sort"
     requirements = [
         "Include type hints",
