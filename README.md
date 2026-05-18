@@ -1,166 +1,434 @@
-# Recursive Agentic AI Platform
+# 🤖 Recursive Agentic AI Platform
 
-A powerful, recursive multi-agent system that breaks down complex problems into manageable sub-tasks, evaluates outcomes, and iteratively improves until success.
+[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-## Features
+A powerful, recursive multi-agent system that autonomously breaks down complex problems into manageable sub-tasks, evaluates outcomes, and iteratively improves until success.
 
-- **Recursive Task Decomposition**: Breaks goals into steps, each handled by specialized sub-agents
-- **Adaptive Depth**: Recursively decomposes until tasks are simple enough for reliable LLM execution
-- **Outcome Evaluation**: Each task is evaluated against expected requirements
-- **Self-Correction**: Failed tasks are automatically fixed or restarted (up to 5 attempts)
-- **Token Efficiency**: Only creates necessary agents and maintains focused context
-- **Agent Lifecycle Management**: Agents are deleted after successful completion
-- **Multi-Provider Support**: Works with OpenAI, DeepSeek, and any OpenAI-compatible API
+## ✨ Key Features
 
-## Installation
+- **🔄 Recursive Task Decomposition**: Intelligently breaks goals into steps, each handled by specialized sub-agents
+- **🎯 Adaptive Depth**: Recursively decomposes until tasks are simple enough for reliable LLM execution
+- **✅ Outcome Evaluation**: Each task is evaluated against expected requirements
+- **🔧 Self-Correction**: Failed tasks automatically retry (configurable attempts)
+- **⚡ Token Efficiency**: Creates only necessary agents with focused context
+- **🧹 Agent Lifecycle Management**: Agents auto-cleanup after successful completion
+- **🌐 Multi-Provider Support**: OpenAI, DeepSeek, Ollama, LM Studio, and any OpenAI-compatible API
+- **🎨 Real-Time Web Interface**: Beautiful dashboard to visualize agent execution live
+
+## 🚀 Quick Start
+
+### Installation
 
 ```bash
 pip install -r requirements.txt
 ```
 
-## Usage
-
-### Basic Usage with OpenAI
-
-```python
-from agentic_platform import AgenticPlatform
-
-# Initialize the platform
-platform = AgenticPlatform(
-    api_key="your-api-key",
-    model="gpt-4",
-    max_depth=3,  # Maximum recursion depth
-    max_retries=5  # Maximum retry attempts per task
-)
-
-# Execute a complex goal
-result = platform.execute("Build a complete web scraper for e-commerce sites")
-print(result)
-```
-
-### Using DeepSeek
-
-```python
-from agentic_platform import AgenticPlatform
-
-# Initialize with DeepSeek
-platform = AgenticPlatform(
-    api_key="your-deepseek-api-key",
-    model="deepseek-chat",  # or "deepseek-coder" for coding tasks
-    provider="deepseek",  # Specify DeepSeek as the provider
-    max_depth=3,
-    max_retries=5
-)
-
-# Execute a goal
-result = platform.execute("Write a Python function to implement merge sort")
-print(result)
-```
-
-### Using Custom Endpoints (Ollama, Local LLMs, etc.)
-
-```python
-from agentic_platform import AgenticPlatform
-
-# Initialize with custom endpoint (e.g., Ollama)
-platform = AgenticPlatform(
-    api_key="ollama",  # Not required for local servers
-    model="llama3",  # Your preferred model
-    base_url="http://localhost:11434/v1",  # Custom endpoint
-    provider="custom",  # Use custom provider for OpenAI-compatible APIs
-    max_depth=2,
-    max_retries=3
-)
-
-# Execute a goal
-result = platform.execute("Explain quantum computing")
-print(result)
-```
-
-### Quick Start with Mock (Testing)
+### Basic Usage (5 Minutes)
 
 ```python
 from agentic_platform import solve
 
-# Solve a problem with mock LLM (for testing)
-result = solve("Create a web scraper", use_mock=True)
-print(result)
+# Solve a problem with mock (testing - no API key needed)
+result = solve("Create a web scraper for e-commerce sites", use_mock=True)
+print(result['result'])
 
-# Solve with real API
+# Solve with real API (OpenAI)
 result = solve(
     "Build a REST API for user management",
-    requirements=["Use FastAPI", "Add JWT auth"],
-    api_key="your-api-key",
-    provider="openai",  # or "deepseek" or "custom"
-    max_depth=3,
-    max_retries=5
+    requirements=["Use FastAPI", "Add JWT authentication"],
+    api_key="your-openai-key",
+    provider="openai",
+    model="gpt-4"
 )
 ```
 
-## Architecture
+### Using the Web Interface
 
-```
-Goal
-├── Step 1 → Agent 1
-│   ├── Sub-step 1.1 → Sub-Agent 1.1
-│   └── Sub-step 1.2 → Sub-Agent 1.2
-├── Step 2 → Agent 2
-│   └── ...
-└── Step 3 → Agent 3
-    └── ...
+```bash
+# Start the web server
+python start_web_interface.py
+
+# Open browser to http://localhost:8000
 ```
 
-## Configuration
+The web interface provides:
+- 🌳 Real-time agent tree visualization
+- 📊 Live statistics and progress tracking
+- 📝 Event log showing every action
+- ⚙️ Easy configuration of all parameters
 
-Edit `config.yaml` to customize:
-- Model parameters
-- Recursion depth
-- Retry limits
-- Token budgets
+## 📖 Table of Contents
 
-## Supported Providers
+- [Installation](#-installation)
+- [Quick Start](#-quick-start)
+- [Usage Examples](#-usage-examples)
+  - [OpenAI](#openai)
+  - [DeepSeek](#deepseek)
+  - [Custom Endpoints (Ollama, Local LLMs)](#custom-endpoints-ollama-local-llms)
+  - [Web Interface](#web-interface)
+- [Architecture](#-architecture)
+- [Configuration](#-configuration)
+- [API Reference](#-api-reference)
+- [Testing](#-testing)
+- [Troubleshooting](#-troubleshooting)
+- [Contributing](#-contributing)
 
-| Provider | Description | Default Base URL |
-|----------|-------------|------------------|
-| `openai` | OpenAI GPT models | https://api.openai.com/v1 |
-| `deepseek` | DeepSeek V4 and other models | https://api.deepseek.com/v1 |
-| `custom` | Any OpenAI-compatible API | User-specified |
+## 🔧 Installation
 
-### Examples of Custom Endpoints
+### Prerequisites
 
-- **Ollama**: `http://localhost:11434/v1`
-- **LM Studio**: `http://localhost:1234/v1`
-- **Azure OpenAI**: `https://YOUR_RESOURCE.openai.azure.com/openai/deployments/YOUR_DEPLOYMENT`
-- **vLLM**: `http://localhost:8000/v1`
+- Python 3.10 or higher
+- pip package manager
 
-## Environment Variables
+### Install Dependencies
 
-You can set API keys via environment variables:
+```bash
+pip install -r requirements.txt
+```
 
+### Optional: Install for Specific Providers
+
+**OpenAI:**
+```bash
+pip install openai>=1.0.0
+```
+
+**DeepSeek:** (uses OpenAI client)
+```bash
+pip install openai>=1.0.0
+```
+
+**Environment Variables (Recommended):**
 ```bash
 export OPENAI_API_KEY="your-openai-key"
 export DEEPSEEK_API_KEY="your-deepseek-key"
 ```
 
-Then use in code:
+## 💡 Usage Examples
+
+### OpenAI
 
 ```python
-import os
+from agentic_platform import AgenticPlatform
 
 platform = AgenticPlatform(
-    api_key=os.getenv("DEEPSEEK_API_KEY"),
-    provider="deepseek"
+    api_key="your-api-key",  # or use os.getenv("OPENAI_API_KEY")
+    model="gpt-4",
+    max_depth=3,
+    max_retries=5
+)
+
+result = platform.execute_sync(
+    goal="Build a complete web scraper for e-commerce sites",
+    requirements=[
+        "Handle pagination",
+        "Extract product details",
+        "Save to CSV",
+        "Include error handling"
+    ]
+)
+
+print(f"Success: {result['success']}")
+print(f"Result: {result['result']}")
+```
+
+### DeepSeek
+
+```python
+from agentic_platform import AgenticPlatform
+
+platform = AgenticPlatform(
+    api_key="your-deepseek-key",
+    model="deepseek-chat",  # or "deepseek-v4-pro", "deepseek-coder"
+    provider="deepseek",
+    max_depth=3,
+    max_retries=5
+)
+
+result = platform.execute_sync("Write a merge sort implementation in Python")
+```
+
+**Available DeepSeek Models:**
+
+| Model | Best For |
+|-------|----------|
+| `deepseek-v4-pro` | Complex reasoning, advanced coding |
+| `deepseek-chat` | General tasks, conversation |
+| `deepseek-coder` | Code generation, debugging |
+| `deepseek-v3` | Cost-effective general tasks |
+
+### Custom Endpoints (Ollama, Local LLMs)
+
+```python
+from agentic_platform import AgenticPlatform
+
+# Ollama example
+platform = AgenticPlatform(
+    api_key="ollama",  # Not required for local
+    model="llama3",
+    base_url="http://localhost:11434/v1",
+    provider="custom",
+    max_depth=2,
+    max_retries=3
+)
+
+result = platform.execute_sync("Explain quantum computing")
+```
+
+**Supported Custom Endpoints:**
+
+| Service | Base URL |
+|---------|----------|
+| Ollama | `http://localhost:11434/v1` |
+| LM Studio | `http://localhost:1234/v1` |
+| vLLM | `http://localhost:8000/v1` |
+| Azure OpenAI | `https://YOUR_RESOURCE.openai.azure.com/openai/deployments/YOUR_DEPLOYMENT` |
+
+### Web Interface
+
+The platform includes a beautiful real-time web interface:
+
+```bash
+# Start the server
+python start_web_interface.py
+
+# Visit http://localhost:8000 in your browser
+```
+
+**Features:**
+- 🌳 Visual agent tree showing hierarchy
+- 📊 Live statistics (agents created, completed, failed)
+- 📝 Real-time event log
+- 🎛️ Easy configuration of all parameters
+- 🎨 Beautiful, responsive design
+
+## 🏗️ Architecture
+
+The platform uses a recursive agent hierarchy:
+
+```
+Goal: "Build an e-commerce scraper"
+├── Agent 1: Design architecture
+│   ├── Sub-Agent 1.1: Define data models
+│   └── Sub-Agent 1.2: Plan scraping strategy
+├── Agent 2: Implement core logic
+│   ├── Sub-Agent 2.1: Write HTTP client
+│   └── Sub-Agent 2.2: Create parsers
+└── Agent 3: Add polish
+    ├── Sub-Agent 3.1: Error handling
+    └── Sub-Agent 3.2: Testing
+```
+
+**Execution Flow:**
+
+1. **Task Reception**: Platform receives a goal with optional requirements
+2. **Complexity Assessment**: Determines if task needs decomposition
+3. **Decomposition** (if complex): Breaks into subtasks using LLM
+4. **Agent Creation**: Spawns sub-agents for each subtask
+5. **Recursive Execution**: Each sub-agent repeats steps 2-4
+6. **Evaluation**: Results are validated against requirements
+7. **Self-Correction**: Failed tasks retry automatically
+8. **Aggregation**: Results bubble up through the hierarchy
+9. **Cleanup**: Successful agents are deactivated
+
+## ⚙️ Configuration
+
+### Via Code
+
+```python
+platform = AgenticPlatform(
+    api_key="your-key",
+    model="gpt-4",
+    provider="openai",
+    base_url=None,  # Optional custom endpoint
+    max_depth=3,         # Max recursion depth
+    max_retries=5,       # Retry attempts per task
+    timeout_per_task=300 # Timeout in seconds
 )
 ```
 
-## Running Examples
+### Via config.yaml
+
+Edit `config.yaml` to customize:
+
+```yaml
+llm:
+  provider: "openai"
+  model: "gpt-4"
+  temperature: 0.7
+  max_tokens: 4096
+
+agent:
+  max_depth: 3
+  max_retries: 5
+  timeout_per_task: 300
+
+decomposition:
+  min_complexity_threshold: 100
+  max_subtasks_per_level: 5
+
+evaluation:
+  enabled: true
+  min_passing_score: 7
+
+resources:
+  max_concurrent_agents: 10
+  token_budget_per_task: 8000
+```
+
+## 📚 API Reference
+
+### Main Classes
+
+#### `AgenticPlatform`
+
+The main platform class that orchestrates agent execution.
+
+**Parameters:**
+- `api_key` (str): API key for LLM provider
+- `model` (str): Model name (default: "gpt-4")
+- `provider` (str): Provider type ("openai", "deepseek", "custom")
+- `base_url` (str, optional): Custom API endpoint
+- `max_depth` (int): Maximum recursion depth (default: 3)
+- `max_retries` (int): Max retry attempts per task (default: 5)
+- `use_mock` (bool): Use mock LLM for testing (default: False)
+
+**Methods:**
+- `execute_sync(goal, requirements)`: Synchronous execution
+- `execute(goal, requirements)`: Async execution
+- Both return dict with: `success`, `result`, `error`, `execution_time`, `attempts`, `total_subagents`
+
+#### `solve()` Convenience Function
+
+```python
+from agentic_platform import solve
+
+result = solve(
+    goal="Your goal here",
+    requirements=["req1", "req2"],
+    api_key="your-key",
+    provider="openai",
+    model="gpt-4",
+    max_depth=3,
+    max_retries=5,
+    use_mock=False
+)
+```
+
+### Task & Agent Classes
+
+#### `Task`
+Represents a unit of work with status tracking.
+
+**Attributes:**
+- `id`: Unique identifier
+- `description`: Task description
+- `requirements`: List of requirements
+- `status`: TaskStatus enum (PENDING, IN_PROGRESS, COMPLETED, FAILED, RETRYING)
+- `result`: Execution result
+- `error`: Error message if failed
+- `attempts`: Number of attempts
+
+#### `SubAgent`
+Autonomous agent that executes tasks recursively.
+
+## 🧪 Testing
+
+### Run Tests
 
 ```bash
-# Run basic examples with mock LLM
+pytest tests.py -v
+```
+
+### Test with Mock LLM
+
+```python
+from agentic_platform import solve
+
+# No API key needed - uses mock responses
+result = solve("Create a function", use_mock=True)
+```
+
+### Example Scripts
+
+```bash
+# Run basic examples
 python examples.py
 
-# Run DeepSeek example (requires API key)
-export DEEPSEEK_API_KEY="your-key"
+# Run specific example
 python -c "from examples import example_deepseek; example_deepseek()"
 ```
 
+## 🔍 Troubleshooting
+
+### Authentication Errors
+
+**Error**: `Authentication Fails, Your api key is invalid`
+
+**Solutions:**
+- Verify API key is correct
+- Check for extra spaces or quotes
+- Ensure environment variable is set: `export OPENAI_API_KEY="sk-..."`
+
+### Rate Limiting
+
+**Error**: `Rate limit exceeded`
+
+**Solutions:**
+- Reduce concurrent agents in config
+- Add delays between requests
+- Upgrade your API plan
+
+### Model Not Found
+
+**Error**: `Model xyz not found`
+
+**Solutions:**
+- Verify model name spelling
+- Check model availability in your region
+- Confirm you have access to the model
+
+### Server Won't Start (Web Interface)
+
+```bash
+# Check if port 8000 is in use
+lsof -i :8000
+
+# Kill existing process
+kill -9 <PID>
+
+# Or use different port
+```
+
+### Events Not Showing in Web Interface
+
+- Check browser console (F12) for errors
+- Ensure JavaScript is enabled
+- Try Chrome or Firefox
+
+## 🤝 Contributing
+
+Contributions are welcome! Please:
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit changes (`git commit -m 'Add amazing feature'`)
+4. Push to branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## 🙏 Acknowledgments
+
+- Built with support for multiple LLM providers
+- Inspired by autonomous agent research
+- Community contributions welcome
+
+---
+
+**Need Help?** Open an issue on GitHub or check the documentation above.
+
+**Happy Agentic Computing! 🤖✨**

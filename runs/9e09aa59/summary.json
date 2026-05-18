@@ -1,0 +1,12 @@
+{
+  "run_id": "9e09aa59",
+  "success": true,
+  "goal": "Simple task",
+  "result": null,
+  "error": null,
+  "attempts": 1,
+  "execution_time_seconds": 0.2012846629999956,
+  "max_depth_reached": 0,
+  "total_subagents": 0,
+  "completed_at": "2026-05-18T01:10:05.632356"
+}

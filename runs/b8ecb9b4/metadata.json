@@ -1,0 +1,10 @@
+{
+  "run_id": "b8ecb9b4",
+  "goal": "Write a function to calculate fibonacci numbers",
+  "requirements": [],
+  "started_at": "2026-05-18T01:10:09.295097",
+  "model": "gpt-4",
+  "provider": "openai",
+  "max_depth": 2,
+  "max_retries": 3
+}

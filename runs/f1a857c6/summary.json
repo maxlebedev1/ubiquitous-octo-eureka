@@ -1,0 +1,12 @@
+{
+  "run_id": "f1a857c6",
+  "success": true,
+  "goal": "Complex multi-step task",
+  "result": null,
+  "error": null,
+  "attempts": 1,
+  "execution_time_seconds": 0.2012198319999925,
+  "max_depth_reached": 0,
+  "total_subagents": 0,
+  "completed_at": "2026-05-18T01:10:05.836918"
+}

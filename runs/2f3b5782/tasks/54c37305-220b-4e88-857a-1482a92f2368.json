@@ -1,0 +1,13 @@
+{
+  "id": "54c37305-220b-4e88-857a-1482a92f2368",
+  "description": "Mock response",
+  "requirements": [
+    "Complete the task accurately"
+  ],
+  "status": "pending",
+  "result": "Mock response",
+  "error": null,
+  "attempts": 1,
+  "parent_id": "8b59aaa1-34db-47b1-94db-bd55acb2a41b",
+  "timestamp": "2026-05-18T01:10:10.511066"
+}

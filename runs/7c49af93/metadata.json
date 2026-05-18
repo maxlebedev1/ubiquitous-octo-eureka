@@ -1,0 +1,10 @@
+{
+  "run_id": "7c49af93",
+  "goal": "Write a hello world program",
+  "requirements": [],
+  "started_at": "2026-05-18T01:10:05.022524",
+  "model": "gpt-4",
+  "provider": "openai",
+  "max_depth": 2,
+  "max_retries": 3
+}

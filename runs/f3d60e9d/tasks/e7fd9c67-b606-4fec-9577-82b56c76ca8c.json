@@ -1,0 +1,11 @@
+{
+  "id": "e7fd9c67-b606-4fec-9577-82b56c76ca8c",
+  "description": "Test goal",
+  "requirements": [],
+  "status": "pending",
+  "result": "Mock response",
+  "error": null,
+  "attempts": 1,
+  "parent_id": null,
+  "timestamp": "2026-05-18T01:10:05.940479"
+}

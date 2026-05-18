@@ -1,0 +1,10 @@
+{
+  "run_id": "82a1c70a",
+  "goal": "Task that might fail",
+  "requirements": [],
+  "started_at": "2026-05-18T01:10:06.453209",
+  "model": "gpt-4",
+  "provider": "openai",
+  "max_depth": 3,
+  "max_retries": 5
+}

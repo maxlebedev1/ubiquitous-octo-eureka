@@ -1,0 +1,11 @@
+{
+  "id": "0d029064-0687-46fe-9dd1-c46a804832f8",
+  "description": "Task that might fail",
+  "requirements": [],
+  "status": "pending",
+  "result": "Mock response",
+  "error": null,
+  "attempts": 1,
+  "parent_id": null,
+  "timestamp": "2026-05-18T01:10:06.554483"
+}

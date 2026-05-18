@@ -1,0 +1,8 @@
+{
+  "id": "1a17f31e-ce79-4e24-b802-b1f65a241ba7",
+  "depth": 0,
+  "task_id": "8b59aaa1-34db-47b1-94db-bd55acb2a41b",
+  "task_description": "\n    Build a complete machine learning pipeline for sentiment analysis that includes:\n    1. Data collection from social media APIs\n    2. Data preprocessing and cleaning\n    3. Feature extraction using TF-IDF\n    4. Model training with multiple algorithms\n    5. Model evaluation and comparison\n    6. Deployment as a web service\n    ",
+  "is_active": true,
+  "created_at": "2026-05-18T01:10:10.308928"
+}
