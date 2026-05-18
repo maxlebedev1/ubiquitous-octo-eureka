@@ -1,0 +1,10 @@
+{
+  "run_id": "f1a857c6",
+  "goal": "Complex multi-step task",
+  "requirements": [],
+  "started_at": "2026-05-18T01:10:05.635037",
+  "model": "gpt-4",
+  "provider": "openai",
+  "max_depth": 3,
+  "max_retries": 5
+}

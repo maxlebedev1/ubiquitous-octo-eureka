@@ -1,0 +1,10 @@
+{
+  "run_id": "9e09aa59",
+  "goal": "Simple task",
+  "requirements": [],
+  "started_at": "2026-05-18T01:10:05.430753",
+  "model": "gpt-4",
+  "provider": "openai",
+  "max_depth": 3,
+  "max_retries": 5
+}

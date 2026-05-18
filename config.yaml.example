@@ -1,0 +1,47 @@
+# Platform Configuration - Example Template
+# Copy this file to config.yaml and fill in your values
+
+# LLM Settings
+llm:
+  provider: "openai"  # openai, deepseek, or custom
+  model: "gpt-4"      # or deepseek-chat, llama3, etc.
+  api_key: "${OPENAI_API_KEY}"  # Use environment variable (recommended)
+  # api_key: "sk-your-actual-key"  # Or paste your key directly (not recommended)
+  temperature: 0.7
+  max_tokens: 4096
+  base_url: null  # Optional: custom endpoint URL
+
+# Agent Settings
+agent:
+  max_depth: 3          # Maximum recursion depth for task decomposition
+  max_retries: 5        # Maximum retry attempts per task before giving up
+  timeout_per_task: 300 # Timeout in seconds per task
+  
+# Task Decomposition
+decomposition:
+  min_complexity_threshold: 100  # Minimum complexity score to trigger decomposition
+  max_subtasks_per_level: 5      # Maximum subtasks created at each level
+  
+# Evaluation
+evaluation:
+  enabled: true
+  strict_mode: false  # If true, requires perfect scores; if false, accepts >= 7/10
+  min_passing_score: 7
+  
+# Resource Management
+resources:
+  max_concurrent_agents: 10       # Maximum agents running simultaneously
+  token_budget_per_task: 8000     # Maximum tokens to spend per task
+  cleanup_after_completion: true  # Delete sub-agents after successful completion
+  
+# Logging
+logging:
+  level: "INFO"  # DEBUG, INFO, WARNING, ERROR
+  file: "agent_platform.log"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+
+# Web Interface Settings
+web_interface:
+  host: "localhost"
+  port: 8000
+  debug: false

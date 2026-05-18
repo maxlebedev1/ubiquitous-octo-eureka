@@ -1,0 +1,14 @@
+{
+  "id": "2767ed6e-c28b-4fe1-8370-f3bb20850789",
+  "description": "Create a calculator",
+  "requirements": [
+    "Use Python",
+    "Include comments"
+  ],
+  "status": "pending",
+  "result": "Mock response",
+  "error": null,
+  "attempts": 1,
+  "parent_id": null,
+  "timestamp": "2026-05-18T01:10:05.327999"
+}

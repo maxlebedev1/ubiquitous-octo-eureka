@@ -1,8 +1,19 @@
 ```
 # Compiled Python files
-__pycache__/
 *.pyc
+__pycache__/
 
-# Runtime data
-runs/
+# Logs
+*.log
+server.log
+
+# Environment files
+.env
+.env.local
+.env.*
+
+# Dependencies
+venv/
+.venv/
+node_modules/
 ```

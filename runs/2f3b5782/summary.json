@@ -1,0 +1,12 @@
+{
+  "run_id": "2f3b5782",
+  "success": true,
+  "goal": "\n    Build a complete machine learning pipeline for sentiment analysis that includes:\n    1. Data collection from social media APIs\n    2. Data preprocessing and cleaning\n    3. Feature extraction using TF-IDF\n    4. Model training with multiple algorithms\n    5. Model evaluation and comparison\n    6. Deployment as a web service\n    ",
+  "result": null,
+  "error": null,
+  "attempts": 1,
+  "execution_time_seconds": 0.4029551220000087,
+  "max_depth_reached": 0,
+  "total_subagents": 0,
+  "completed_at": "2026-05-18T01:10:10.712139"
+}

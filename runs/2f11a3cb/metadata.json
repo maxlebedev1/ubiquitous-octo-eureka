@@ -1,0 +1,13 @@
+{
+  "run_id": "2f11a3cb",
+  "goal": "Test goal",
+  "requirements": [
+    "Req 1",
+    "Req 2"
+  ],
+  "started_at": "2026-05-18T01:10:06.042991",
+  "model": "gpt-4",
+  "provider": "openai",
+  "max_depth": 2,
+  "max_retries": 3
+}

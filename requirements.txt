@@ -1,15 +1,20 @@
 # Core dependencies
 asyncio-throttle>=1.0.0
-
-# LLM clients (optional - install based on your provider)
-# openai>=1.0.0  # For OpenAI/GPT models
-# anthropic>=0.18.0  # For Claude models
-# google-generativeai>=0.3.0  # For Google models
-
-# Utilities
 python-dotenv>=1.0.0
 pyyaml>=6.0
+
+# LLM clients (required for OpenAI/DeepSeek)
+openai>=1.0.0
+
+# Web interface
+fastapi>=0.104.0
+uvicorn[standard]>=0.24.0
+sse-starlette>=1.8.0
 
 # Development & testing
 pytest>=7.4.0
 pytest-asyncio>=0.21.0
+
+# Optional providers (uncomment as needed)
+# anthropic>=0.18.0  # For Claude models
+# google-generativeai>=0.3.0  # For Google models
